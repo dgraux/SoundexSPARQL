@@ -1,0 +1,59 @@
+##########################################
+### Soundex in SPARQL 1.1
+###
+###
+### Source for the Soundex table:
+### <https://fr.wikipedia.org/wiki/Soundex>
+###
+### Author: D. Graux
+### 2022
+##########################################
+
+select ?soundex where {
+  # Word of which the soundex value is computed from.
+  values ?w { "affecter" }
+  
+  # The four soundex digits.
+  values ?s0 { "0" }
+  values ?s1 { "0" }
+  values ?s2 { "0" }
+  values ?s3 { "0" }
+  
+  # First, we convert to upper case.
+  # Second, we remove the first letter and keep the tail.
+  # Third, we encode all letter according to the soundex table* (for French).
+  # Fourth, we remove the duplicate consecutive "similar" sounds.
+  # Fifth, we remove the vowel sounds.
+  bind ( ucase (?w) as ?Uw )
+  bind ( substr(?Uw,2,strlen(?Uw)) as ?tail )
+  bind ( replace(replace(replace(replace(replace(replace(replace(replace(replace(?tail,"[BP]","1"),"[CKQ]","2"),"[DT]","3"),"[L]","4"),"[MN]","5"),"[R]","6"),"[GJ]","7"),"[XZS]","8"),"[FV]","9") as ?encoded )
+  bind ( replace(?encoded,"([0-9A-Z])(?=\\1)","") as ?no_duplicate_sound )
+  bind ( replace(?no_duplicate_sound,"[AEHIOUWY]","") as ?clean )
+
+  # We just retain the thrid first digits obtained.
+  bind ( substr(?clean,1,1) as ?e1 )
+  bind ( substr(?clean,2,1) as ?e2 )
+  bind ( substr(?clean,3,1) as ?e3 )
+  
+  # We compute the soundex hash, by joining the first letter
+  # together with the three first encoded values.
+  bind ( substr(?Uw,1,1) as ?s0 )
+  bind ( if (?e1 = "", "0", ?e1) as ?s1 )
+  bind ( if (?e2 = "", "0", ?e2) as ?s2 )
+  bind ( if (?e3 = "", "0", ?e3) as ?s3 )
+  bind ( concat ( ?s0,?s1,?s2,?s3 ) as ?soundex )
+  
+  ################################
+  ### *The French Soundex Table:
+  ###    1 = B, P
+  ###    2 = C, K, Q
+  ###    3 = D, T
+  ###    4 = L
+  ###    5 = M, N
+  ###    6 = R
+  ###    7 = G, J
+  ###    8 = X, Z, S
+  ###    9 = F, V
+  ################################
+  
+}

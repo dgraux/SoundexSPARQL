@@ -20,7 +20,8 @@ Repository files
 This repository contains:
 
 - `README.md` (this file): providing documentation;
-- `soundex.rq`: the SPARQL query able to compute an English soundex over a given word;
+- `soundex_en.rq`: the SPARQL query able to compute an __English__ soundex over a given word;
+- `soundex_fr.rq`: the SPARQL query able to compute a __French__ soundex over a given word;
 - `LICENSE`.
 
 
